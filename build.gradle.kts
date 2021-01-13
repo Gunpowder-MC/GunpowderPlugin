@@ -21,7 +21,7 @@ repositories {
 }
 
 
-val pr = URL("https://raw.githubusercontent.com/Gunpowder-MC/Gunpowder/0.3.x/gradle.properties").openConnection().getInputStream()
+val pr = URL("https://raw.githubusercontent.com/Gunpowder-MC/Gunpowder/master/gradle.properties").openConnection().getInputStream()
 val props = Properties()
 props.load(pr)
 props.forEach { prop ->

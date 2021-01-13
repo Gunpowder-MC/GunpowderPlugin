@@ -10,7 +10,7 @@ import java.util.*
 
 open class GunpowderPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        val props = URL("https://raw.githubusercontent.com/Gunpowder-MC/Gunpowder/0.3.x/gradle.properties").openConnection().getInputStream()
+        val props = URL("https://raw.githubusercontent.com/Gunpowder-MC/Gunpowder/master/gradle.properties").openConnection().getInputStream()
         Properties().apply {
             load(props)
         }.forEach {
@@ -20,7 +20,7 @@ open class GunpowderPlugin : Plugin<Project> {
         val shade by project.configurations.creating
         project.extra["shade"] = shade
 
-        project.apply(mapOf("from" to "https://raw.githubusercontent.com/Gunpowder-MC/Gunpowder/0.3.x/dependencies.gradle"))
+        project.apply(mapOf("from" to "https://raw.githubusercontent.com/Gunpowder-MC/Gunpowder/master/dependencies.gradle"))
 
         project.loadPlugins()
         project.configureGunpowder()
