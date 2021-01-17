@@ -108,7 +108,7 @@ internal fun Project.loadDependencies() {
         add(Constants.Configurations.MAPPINGS, libs["yarn"]!!)
         add("modImplementation", libs["fabric_loader"]!!)
         add("modImplementation", libs["fabric_api"]!!)
-        add("modImplementation", libs["fabric_language_kotlin"]!!)
+        add("modCompileOnly", libs["fabric_language_kotlin"]!!)
 
         add("modCompileOnly", libs["exposed_core"]!!)
 

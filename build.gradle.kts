@@ -29,15 +29,6 @@ props.forEach { prop ->
 }
 
 dependencies {
-    constraints {
-        sequenceOf("asm", "asm-util", "asm-tree", "asm-analysis").forEach {
-            implementation("org.ow2.asm:$it") {
-                version { require("9.0") }
-                because("Fabric's TinyRemapper requires ASM 9")
-            }
-        }
-    }
-
     /* Depend on the kotlin plugin, since we want to access it in our plugin */
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${props["kotlin"]}")
     implementation("gradle.plugin.net.minecrell:licenser:${props["licenser"]}")
