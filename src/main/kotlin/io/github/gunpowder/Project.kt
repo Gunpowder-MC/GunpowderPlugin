@@ -154,6 +154,15 @@ internal fun Project.setupTasks() {
         remapAccessWidener.set(true)
     }
 
+    tasks.create<RemapJarTask>("remapMavenJar") {
+        dependsOn.add("shadowJar")
+
+        input.set(file("$jarpath-dev.jar"))
+        archiveFileName.set("${project.name}-${project.version}-maven.jar")
+        addNestedDependencies.set(false)
+        remapAccessWidener.set(true)
+    }
+
 
 //    tasks.create<RemapJarTask>("remapSourcesJar") {
 //        dependsOn.add("sourcesJar")
@@ -186,7 +195,7 @@ internal fun Project.setupTasks() {
 
             publications {
                 register("mavenJava", MavenPublication::class) {
-                    artifact(file("${jarpath}.jar")).apply { classifier = "" }
+                    artifact(file("${jarpath}-maven.jar")).apply { classifier = "" }
                     artifact(file("${jarpath}-dev.jar")).apply { classifier = "dev" }
                     artifact(file("${jarpath}-sources.jar")).apply { classifier = "sources" }
                     artifact(file("${jarpath}-sources-dev.jar")).apply { classifier = "sources-dev" }
