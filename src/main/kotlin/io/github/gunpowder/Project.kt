@@ -3,6 +3,7 @@ package io.github.gunpowder
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.matthewprenger.cursegradle.CurseExtension
 import com.matthewprenger.cursegradle.CurseProject
+import com.matthewprenger.cursegradle.CurseRelation
 import com.matthewprenger.cursegradle.CurseUploadTask
 import net.fabricmc.loom.LoomGradleExtension
 import net.fabricmc.loom.task.RemapJarTask
@@ -98,6 +99,10 @@ internal fun Project.loadDependencies() {
             name = "Ladysnake Libs"
             url = uri("https://dl.bintray.com/ladysnake/libs")
         }
+        maven {
+            name = "HeavenKing"
+            url = uri("https://hephaestus.dev/release")
+        }
     }
 
 
@@ -111,11 +116,10 @@ internal fun Project.loadDependencies() {
         add("modCompileOnly", libs["fabric_language_kotlin"]!!)
 
         add("modCompileOnly", libs["exposed_core"]!!)
+        add("modImplementation", libs["hermes"]!!)
 
         add("modCompileOnly", "io.github.gunpowder:gunpowder-api:${project.properties["gunpowder_version"]}+${project.properties["minecraft"]}")
         add("modRuntime", "io.github.gunpowder:gunpowder-base:${project.properties["gunpowder_version"]}+${project.properties["minecraft"]}")
-
-        add("modRuntime", libs["modmenu"]!!)
     }
 
 }
@@ -210,6 +214,7 @@ internal fun Project.setupTasks() {
         configure<CurseExtension> {
             curseProjects.add(CurseProject().apply {
                 apiKey = project.properties["cfKey"] as String
+                id = project.properties["curseId"] as String
                 releaseType = "release"
                 changelogType = "markdown"
                 changelog = file("CHANGELOG.md").readText().split("---")[0]
@@ -221,6 +226,13 @@ internal fun Project.setupTasks() {
                 addGameVersion("Java 10")
 
                 mainArtifact("$jarpath.jar")
+
+                relations(closureOf<CurseRelation> {
+                    requiredDependency("gunpowder-mc")
+                    (project.properties["mod_dependencies"]!! as String).split(",").forEach {
+                        requiredDependency(it.replace(" ", ""))
+                    }
+                })
             })
 
             curseGradleOptions.apply {
