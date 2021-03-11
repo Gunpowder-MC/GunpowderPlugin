@@ -4,7 +4,6 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.matthewprenger.cursegradle.CurseExtension
 import com.matthewprenger.cursegradle.CurseProject
 import com.matthewprenger.cursegradle.CurseRelation
-import com.matthewprenger.cursegradle.CurseUploadTask
 import net.fabricmc.loom.LoomGradleExtension
 import net.fabricmc.loom.task.RemapJarTask
 import net.fabricmc.loom.util.Constants
@@ -13,11 +12,9 @@ import net.minecrell.gradle.licenser.header.HeaderStyle
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePluginConvention
-import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
-import org.gradle.api.publish.internal.DefaultPublishingExtension
+import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.*
 import org.gradle.language.jvm.tasks.ProcessResources
@@ -179,14 +176,12 @@ internal fun Project.setupTasks() {
         dependsOn("remapShadowJar")
     }
 
-    if (file("secrets.gradle").exists()) {
-        apply(from="secrets.gradle")
-
-        tasks.getByName<PublishToMavenRepository>("publish") {
+    if (project.properties["mavenToken"] != null) {
+        tasks.getByName("publish") {
             dependsOn("remapMavenJar", "remapSourcesJar")
         }
 
-        configure<DefaultPublishingExtension> {
+        configure<PublishingExtension> {
             repositories {
                 maven {
                     url = uri("https://maven.martmists.com/releases")
@@ -206,14 +201,16 @@ internal fun Project.setupTasks() {
                 }
             }
         }
+    }
 
-        tasks.getByName<CurseUploadTask>("curseforge") {
+    if (project.properties["curseId"] != null) {
+        tasks.getByName("curseforge") {
             dependsOn("remapShadowJar")
         }
 
         configure<CurseExtension> {
             curseProjects.add(CurseProject().apply {
-                apiKey = project.properties["cfKey"] as String
+                apiKey = project.properties["cfToken"] as String
                 id = project.properties["curseId"] as String
                 releaseType = "release"
                 changelogType = "markdown"
@@ -225,12 +222,18 @@ internal fun Project.setupTasks() {
                 addGameVersion("Java 9")
                 addGameVersion("Java 10")
 
+                println("Curseforge jar: $jarpath.jar")
                 mainArtifact("$jarpath.jar")
 
                 relations(closureOf<CurseRelation> {
                     requiredDependency("gunpowder-mc")
                     (project.properties["mod_dependencies"]!! as String).split(",").forEach {
-                        requiredDependency(it.replace(" ", ""))
+                        it.replace(" ", "").also { itt ->
+                            if (itt.isNotBlank()) {
+                                println("Required dependency: ${it.replace(" ", "")}")
+                                requiredDependency(itt)
+                            }
+                        }
                     }
                 })
             })
