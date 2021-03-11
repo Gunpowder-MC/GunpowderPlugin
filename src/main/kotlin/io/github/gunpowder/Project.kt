@@ -173,7 +173,7 @@ internal fun Project.setupTasks() {
 //    }
 
     tasks.getByName("build") {
-        dependsOn("remapShadowJar")
+        dependsOn("remapShadowJar", "remapMavenJar", "remapSourcesJar")
     }
 
     if (project.properties["mavenToken"] != null) {
