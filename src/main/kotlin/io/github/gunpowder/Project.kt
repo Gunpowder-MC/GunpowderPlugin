@@ -23,7 +23,11 @@ import org.gradle.api.tasks.SourceSetContainer
 
 
 internal fun Project.configureGunpowder() {
+    println("[GunpowderPlugin] Configuring project")
     version = "${project.properties["extension_version"]}+gunpowder.${project.properties["gunpowder_version"]}.mc.${project.properties["minecraft"]}"
+
+    println("[GunpowderPlugin] Project version: $version")
+
     group = "io.github.gunpowder"
 
     configure<JavaPluginConvention> {
@@ -41,6 +45,7 @@ internal fun Project.configureGunpowder() {
     tasks.withType<KotlinCompile> {
         kotlinOptions {
             jvmTarget = "1.8"
+            freeCompilerArgs = freeCompilerArgs.toMutableList().also { it.add("-Xjvm-default=compatibility") }
         }
     }
 
@@ -69,6 +74,7 @@ internal fun Project.configureGunpowder() {
 
 
 internal fun Project.loadPlugins() {
+    println("[GunpowderPlugin] Loading plugins")
     plugins.apply("java")
     plugins.apply("idea")
     plugins.apply("org.jetbrains.kotlin.jvm")
@@ -81,6 +87,8 @@ internal fun Project.loadPlugins() {
 
 
 internal fun Project.loadDependencies() {
+    println("[GunpowderPlugin] Setting up dependencies")
+
     repositories {
         mavenCentral()
         jcenter()
@@ -102,15 +110,20 @@ internal fun Project.loadDependencies() {
         }
     }
 
-
-
     val libs = project.properties["libs"] as Map<String, Any>
+
+    println("[GunpowderPlugin] Minecraft: ${libs["minecraft"]}")
+    println("[GunpowderPlugin] Fabric Loader: ${libs["fabric_loader"]}")
+    println("[GunpowderPlugin] Fabric API: ${libs["fabric_api"]}")
+    println("[GunpowderPlugin] Yarn: ${libs["yarn"]}")
+    println("[GunpowderPlugin] Gunpowder: ${project.properties["gunpowder_version"]}")
+
     dependencies {
         add(Constants.Configurations.MINECRAFT, libs["minecraft"]!!)
         add(Constants.Configurations.MAPPINGS, libs["yarn"]!!)
         add("modImplementation", libs["fabric_loader"]!!)
         add("modImplementation", libs["fabric_api"]!!)
-        add("modCompileOnly", libs["fabric_language_kotlin"]!!)
+        add("modImplementation", libs["fabric_language_kotlin"]!!)
 
         add("modCompileOnly", libs["exposed_core"]!!)
         add("modImplementation", libs["hermes"]!!)
@@ -123,6 +136,8 @@ internal fun Project.loadDependencies() {
 
 
 internal fun Project.setupTasks() {
+    println("[GunpowderPlugin] Configuring tasks")
+
     val base = project.convention.getPlugin(BasePluginConvention::class.java)
     val jarpath = "${buildDir}/libs/${base.archivesBaseName}-${project.version}"
     val sourceSets = property("sourceSets") as SourceSetContainer
@@ -177,6 +192,8 @@ internal fun Project.setupTasks() {
     }
 
     if (project.properties["mavenToken"] != null) {
+        println("[GunpowderPlugin] Setting up maven publish")
+
         tasks.getByName("publish") {
             dependsOn("remapMavenJar", "remapSourcesJar")
         }
@@ -194,6 +211,11 @@ internal fun Project.setupTasks() {
 
             publications {
                 register("mavenJava", MavenPublication::class) {
+                    println("[GunpowderPlugin] Maven jar: $jarpath-maven.jar")
+                    println("[GunpowderPlugin] Maven jar: $jarpath-dev.jar")
+                    println("[GunpowderPlugin] Maven jar: $jarpath-sources.jar")
+                    println("[GunpowderPlugin] Maven jar: $jarpath-sources-dev.jar")
+
                     artifact(file("${jarpath}-maven.jar")).apply { classifier = "" }
                     artifact(file("${jarpath}-dev.jar")).apply { classifier = "dev" }
                     artifact(file("${jarpath}-sources.jar")).apply { classifier = "sources" }
@@ -204,6 +226,8 @@ internal fun Project.setupTasks() {
     }
 
     if (project.properties["curseId"] != null) {
+        println("[GunpowderPlugin] Setting up curseforge publish")
+
         tasks.getByName("curseforge") {
             dependsOn("remapShadowJar")
         }
@@ -222,7 +246,7 @@ internal fun Project.setupTasks() {
                 addGameVersion("Java 9")
                 addGameVersion("Java 10")
 
-                println("Curseforge jar: $jarpath.jar")
+                println("[GunpowderPlugin] Curseforge jar: $jarpath.jar")
                 mainArtifact("$jarpath.jar")
 
                 relations(closureOf<CurseRelation> {
@@ -230,7 +254,7 @@ internal fun Project.setupTasks() {
                     (project.properties["mod_dependencies"]!! as String).split(",").forEach {
                         it.replace(" ", "").also { itt ->
                             if (itt.isNotBlank()) {
-                                println("Required dependency: ${it.replace(" ", "")}")
+                                println("[GunpowderPlugin] Required dependency: ${it.replace(" ", "")}")
                                 requiredDependency(itt)
                             }
                         }
