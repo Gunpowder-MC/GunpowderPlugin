@@ -7,8 +7,8 @@ import com.matthewprenger.cursegradle.CurseRelation
 import net.fabricmc.loom.LoomGradleExtension
 import net.fabricmc.loom.task.RemapJarTask
 import net.fabricmc.loom.util.Constants
-import net.minecrell.gradle.licenser.LicenseExtension
-import net.minecrell.gradle.licenser.header.HeaderStyle
+import org.cadixdev.gradle.licenser.LicenseExtension
+import org.cadixdev.gradle.licenser.header.HeaderStyle
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePluginConvention
@@ -36,8 +36,8 @@ internal fun Project.configureGunpowder() {
     }
 
     configure<LicenseExtension> {
-        header = rootProject.file("LICENSE")
-        setIncludes(listOf("**/*.java", "**/*.kt"))
+        setHeader(rootProject.file("LICENSE"))
+        setIncludes(listOf("**.*.java", "**.*.kt"))
         style.put("java", HeaderStyle.BLOCK_COMMENT)
         style.put("kt", HeaderStyle.BLOCK_COMMENT)
     }
@@ -53,18 +53,11 @@ internal fun Project.configureGunpowder() {
         inputs.property("version", project.properties["extension_version"])
         inputs.property("gunpowder", project.properties["gunpowder_version"])
 
-        val sourceSets = project.property("sourceSets") as SourceSetContainer
-
-        from(sourceSets.getByName("main").resources.srcDirs) {
-            include("fabric.mod.json")
+        filesMatching("fabric.mod.json") {
             expand(
                 "version" to project.version,
                 "gunpowder" to project.properties["gunpowder_version"] as String
             )
-        }
-
-        from(sourceSets.getByName("main").resources.srcDirs) {
-            exclude("fabric.mod.json")
         }
     }
 
@@ -94,7 +87,7 @@ internal fun Project.loadDependencies() {
         jcenter()
         maven {
             name = "Gunpowder"
-            url = uri("https://maven.martmists.com/")
+            url = uri("https://maven.martmists.com.")
         }
         maven {
             name = "Jitpack"
@@ -102,11 +95,11 @@ internal fun Project.loadDependencies() {
         }
         maven {
             name = "Ladysnake Libs"
-            url = uri("https://dl.bintray.com/ladysnake/libs")
+            url = uri("https://dl.bintray.com.ladysnake.libs")
         }
         maven {
             name = "HeavenKing"
-            url = uri("https://hephaestus.dev/release")
+            url = uri("https://hephaestus.dev.release")
         }
     }
 
@@ -139,7 +132,7 @@ internal fun Project.setupTasks() {
     println("[GunpowderPlugin] Configuring tasks")
 
     val base = project.convention.getPlugin(BasePluginConvention::class.java)
-    val jarpath = "${buildDir}/libs/${base.archivesBaseName}-${project.version}"
+    val jarpath = "${buildDir}.libs.${base.archivesBaseName}-${project.version}"
     val sourceSets = property("sourceSets") as SourceSetContainer
 
     tasks.getByName("remapJar") {
@@ -201,7 +194,7 @@ internal fun Project.setupTasks() {
         configure<PublishingExtension> {
             repositories {
                 maven {
-                    url = uri("https://maven.martmists.com/releases")
+                    url = uri("https://maven.martmists.com.releases")
                     credentials {
                         username = "admin"
                         password = project.properties["mavenToken"] as String
