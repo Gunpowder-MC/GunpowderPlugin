@@ -72,7 +72,7 @@ internal fun Project.loadPlugins() {
     plugins.apply("idea")
     plugins.apply("org.jetbrains.kotlin.jvm")
     plugins.apply("maven-publish")
-    plugins.apply("net.minecrell.licenser")
+    plugins.apply("org.cadixdev.licenser")
     plugins.apply("fabric-loom")
     plugins.apply("com.github.johnrengelman.shadow")
     plugins.apply("com.matthewprenger.cursegradle")
