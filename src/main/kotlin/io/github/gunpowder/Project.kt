@@ -6,6 +6,7 @@ import com.matthewprenger.cursegradle.CurseProject
 import com.matthewprenger.cursegradle.CurseRelation
 import net.fabricmc.loom.LoomGradleExtension
 import net.fabricmc.loom.task.RemapJarTask
+import net.fabricmc.loom.task.RemapSourcesJarTask
 import net.fabricmc.loom.util.Constants
 import org.cadixdev.gradle.licenser.LicenseExtension
 import org.cadixdev.gradle.licenser.header.HeaderStyle
@@ -87,7 +88,7 @@ internal fun Project.loadDependencies() {
         jcenter()
         maven {
             name = "Gunpowder"
-            url = uri("https://maven.martmists.com.")
+            url = uri("https://maven.martmists.com/")
         }
         maven {
             name = "Jitpack"
@@ -95,11 +96,11 @@ internal fun Project.loadDependencies() {
         }
         maven {
             name = "Ladysnake Libs"
-            url = uri("https://dl.bintray.com.ladysnake.libs")
+            url = uri("https://dl.bintray.com/ladysnake/libs")
         }
         maven {
             name = "HeavenKing"
-            url = uri("https://hephaestus.dev.release")
+            url = uri("https://hephaestus.dev/release")
         }
     }
 
@@ -132,14 +133,16 @@ internal fun Project.setupTasks() {
     println("[GunpowderPlugin] Configuring tasks")
 
     val base = project.convention.getPlugin(BasePluginConvention::class.java)
-    val jarpath = "${buildDir}.libs.${base.archivesBaseName}-${project.version}"
+    val jarpath = "${buildDir}/libs/${base.archivesBaseName}-${project.version}"
     val sourceSets = property("sourceSets") as SourceSetContainer
 
-    tasks.getByName("remapJar") {
+    val jarTask = tasks.getByName("jar")
+
+    val remapJarTask = tasks.getByName("remapJar") {
         enabled = false
     }
 
-    tasks.getByName<ShadowJar>("shadowJar") {
+    val shadowJarTask = tasks.getByName<ShadowJar>("shadowJar") {
         dependsOn.add("classes")
 
         enabled = true
@@ -149,30 +152,32 @@ internal fun Project.setupTasks() {
         configurations.add(this@setupTasks.configurations["shade"])
     }
 
-    tasks.create<Jar>("sourcesJar") {
+    val sourcesJarTask = tasks.create<Jar>("sourcesJar") {
         archiveClassifier.set("sources")
         from(sourceSets.getByName("main").allSource)
     }
 
-    tasks.create<RemapJarTask>("remapShadowJar") {
+    val remapShadowJarTask = tasks.create<RemapJarTask>("remapShadowJar") {
         dependsOn.add("shadowJar")
 
-        input.set(file("$jarpath-dev.jar"))
+        input.set(shadowJarTask.archiveFile)
         archiveFileName.set("${project.name}-${project.version}.jar")
         addNestedDependencies.set(true)
         remapAccessWidener.set(true)
     }
 
-    tasks.create<RemapJarTask>("remapMavenJar") {
+    val remapMavenJarTask = tasks.create<RemapJarTask>("remapMavenJar") {
         dependsOn.add("shadowJar")
 
-        input.set(file("$jarpath-dev.jar"))
+        input.set(shadowJarTask.archiveFile)
+//        input.set(file("$jarpath-dev.jar"))
         archiveFileName.set("${project.name}-${project.version}-maven.jar")
         addNestedDependencies.set(false)
         remapAccessWidener.set(true)
     }
 
 
+    val remapSourcesJarTask = tasks.getByName<RemapSourcesJarTask>("remapSourcesJar")
 //    tasks.create<RemapJarTask>("remapSourcesJar") {
 //        dependsOn.add("sourcesJar")
 //        input.set(file("$jarpath-dev.jar"))
@@ -194,7 +199,7 @@ internal fun Project.setupTasks() {
         configure<PublishingExtension> {
             repositories {
                 maven {
-                    url = uri("https://maven.martmists.com.releases")
+                    url = uri("https://maven.martmists.com/releases")
                     credentials {
                         username = "admin"
                         password = project.properties["mavenToken"] as String
@@ -203,22 +208,22 @@ internal fun Project.setupTasks() {
             }
 
             publications {
-                register("mavenJava", MavenPublication::class) {
-                    println("[GunpowderPlugin] Maven jar: $jarpath-maven.jar")
-                    println("[GunpowderPlugin] Maven jar: $jarpath-dev.jar")
-                    println("[GunpowderPlugin] Maven jar: $jarpath-sources.jar")
-                    println("[GunpowderPlugin] Maven jar: $jarpath-sources-dev.jar")
+                create<MavenPublication>("mavenJava") {
+                    println("[GunpowderPlugin] Maven jar:            $jarpath-maven.jar")
+                    println("[GunpowderPlugin] Shadow jar:           $jarpath-dev.jar")
+                    println("[GunpowderPlugin] Sources jar:          $jarpath-sources.jar")
+                    println("[GunpowderPlugin] Sources (mapped) jar: $jarpath-sources-dev.jar")
 
-                    artifact(file("${jarpath}-maven.jar")).apply { classifier = "" }
-                    artifact(file("${jarpath}-dev.jar")).apply { classifier = "dev" }
-                    artifact(file("${jarpath}-sources.jar")).apply { classifier = "sources" }
-                    artifact(file("${jarpath}-sources-dev.jar")).apply { classifier = "sources-dev" }
+                    artifact(remapMavenJarTask.archiveFile).apply { classifier = "" }
+                    artifact(shadowJarTask.archiveFile).apply { classifier = "dev" }
+                    artifact(sourcesJarTask.archiveFile).apply { classifier = "sources" }
+                    artifact("$jarpath-sources-dev.jar").apply { classifier = "sources-dev" }
                 }
             }
         }
     }
 
-    if (project.properties["curseId"] != null) {
+    if (project.properties["curseId"] != null && project.properties["cfToken"] != null) {
         println("[GunpowderPlugin] Setting up curseforge publish")
 
         tasks.getByName("curseforge") {
