@@ -8,8 +8,8 @@ import net.fabricmc.loom.LoomGradleExtension
 import net.fabricmc.loom.task.RemapJarTask
 import net.fabricmc.loom.task.RemapSourcesJarTask
 import net.fabricmc.loom.util.Constants
-import org.cadixdev.gradle.licenser.LicenseExtension
-import org.cadixdev.gradle.licenser.header.HeaderStyle
+//import org.cadixdev.gradle.licenser.LicenseExtension
+//import org.cadixdev.gradle.licenser.header.HeaderStyle
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePluginConvention
@@ -32,21 +32,21 @@ internal fun Project.configureGunpowder() {
     group = "io.github.gunpowder"
 
     configure<JavaPluginConvention> {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_16
+        targetCompatibility = JavaVersion.VERSION_16
     }
 
-    configure<LicenseExtension> {
-        setHeader(rootProject.file("LICENSE"))
-        setIncludes(listOf("**.*.java", "**.*.kt"))
-        style.put("java", HeaderStyle.BLOCK_COMMENT)
-        style.put("kt", HeaderStyle.BLOCK_COMMENT)
-    }
+//    configure<LicenseExtension> {
+//        setHeader(rootProject.file("LICENSE"))
+//        setIncludes(listOf("**.*.java", "**.*.kt"))
+//        style.put("java", HeaderStyle.BLOCK_COMMENT)
+//        style.put("kt", HeaderStyle.BLOCK_COMMENT)
+//    }
 
     tasks.withType<KotlinCompile> {
         kotlinOptions {
-            jvmTarget = "1.8"
-            freeCompilerArgs = freeCompilerArgs.toMutableList().also { it.add("-Xjvm-default=compatibility") }
+            jvmTarget = JavaVersion.VERSION_16.toString()
+            freeCompilerArgs = freeCompilerArgs.toMutableList().also { it.add("-Xjvm-default=all-compatibility") }
         }
     }
 
@@ -73,7 +73,7 @@ internal fun Project.loadPlugins() {
     plugins.apply("idea")
     plugins.apply("org.jetbrains.kotlin.jvm")
     plugins.apply("maven-publish")
-    plugins.apply("org.cadixdev.licenser")
+//    plugins.apply("org.cadixdev.licenser")
     plugins.apply("fabric-loom")
     plugins.apply("com.github.johnrengelman.shadow")
     plugins.apply("com.matthewprenger.cursegradle")
@@ -95,8 +95,12 @@ internal fun Project.loadDependencies() {
             url = uri("https://jitpack.io")
         }
         maven {
-            name = "Ladysnake Libs"
-            url = uri("https://dl.bintray.com/ladysnake/libs")
+            name = "Ladysnake Mods"
+            url = uri("https://ladysnake.jfrog.io/artifactory/mods")
+            content {
+                includeGroup("io.github.ladysnake")
+                includeGroupByRegex("io\\.github\\.onyxstudios.*")
+            }
         }
         maven {
             name = "HeavenKing"
@@ -238,11 +242,9 @@ internal fun Project.setupTasks() {
                 changelogType = "markdown"
                 changelog = file("CHANGELOG.md").readText().split("---")[0]
 
-                addGameVersion(project.properties["minecraft"])
+                addGameVersion((project.properties["minecraft"] as String).split("-")[0])
                 addGameVersion("Fabric")
-                addGameVersion("Java 8")
-                addGameVersion("Java 9")
-                addGameVersion("Java 10")
+                addGameVersion("Java 16")
 
                 println("[GunpowderPlugin] Curseforge jar: $jarpath.jar")
                 mainArtifact("$jarpath.jar")
