@@ -10,7 +10,8 @@ import java.util.*
 
 open class GunpowderPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        val props = URL("https://raw.githubusercontent.com/Gunpowder-MC/Gunpowder/master/gradle.properties").openConnection().getInputStream()
+        val branch = project.properties["gunpowder_branch"] ?: "master".also { println("[GunpowderPlugin] 'gunpowder_branch' not specified, falling back to master.") }
+        val props = URL("https://raw.githubusercontent.com/Gunpowder-MC/Gunpowder/$branch/gradle.properties").openConnection().getInputStream()
         Properties().apply {
             load(props)
         }.forEach {
@@ -20,7 +21,7 @@ open class GunpowderPlugin : Plugin<Project> {
         val shade by project.configurations.creating
         project.extra["shade"] = shade
 
-        project.apply(mapOf("from" to "https://raw.githubusercontent.com/Gunpowder-MC/Gunpowder/master/dependencies.gradle"))
+        project.apply(mapOf("from" to "https://raw.githubusercontent.com/Gunpowder-MC/Gunpowder/$branch/dependencies.gradle"))
 
         project.loadPlugins()
         project.configureGunpowder()
