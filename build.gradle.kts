@@ -10,6 +10,7 @@ plugins {
 
 repositories {
     gradlePluginPortal()
+    jcenter()
     maven {
         name = "Fabric"
         url = uri("https://maven.fabricmc.net/")
@@ -31,9 +32,9 @@ props.forEach { prop ->
 dependencies {
     /* Depend on the kotlin plugin, since we want to access it in our plugin */
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${props["kotlin"]}")
-//    implementation("gradle.plugin.org.cadixdev.gradle:licenser:${props["licenser"]}")
+    implementation("gradle.plugin.org.cadixdev.gradle:licenser:${props["licenser"]}")
     implementation("net.fabricmc:fabric-loom:${props["fabric_loom"]}")
-    implementation("com.github.jengelman.gradle.plugins:shadow:${props["shadow"]}")
+    implementation("gradle.plugin.com.github.jengelman.gradle.plugins:shadow:${props["shadow"]}")
     implementation("gradle.plugin.com.matthewprenger:CurseGradle:${props["cursegradle"]}")
 
     /* Depend on the default Gradle API's since we want to build a custom plugin */

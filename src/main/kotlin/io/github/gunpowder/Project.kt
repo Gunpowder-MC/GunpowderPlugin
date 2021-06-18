@@ -8,8 +8,8 @@ import net.fabricmc.loom.LoomGradleExtension
 import net.fabricmc.loom.task.RemapJarTask
 import net.fabricmc.loom.task.RemapSourcesJarTask
 import net.fabricmc.loom.util.Constants
-//import org.cadixdev.gradle.licenser.LicenseExtension
-//import org.cadixdev.gradle.licenser.header.HeaderStyle
+import org.cadixdev.gradle.licenser.LicenseExtension
+import org.cadixdev.gradle.licenser.header.HeaderStyle
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePluginConvention
@@ -36,12 +36,12 @@ internal fun Project.configureGunpowder() {
         targetCompatibility = JavaVersion.VERSION_16
     }
 
-//    configure<LicenseExtension> {
-//        setHeader(rootProject.file("LICENSE"))
-//        setIncludes(listOf("**.*.java", "**.*.kt"))
-//        style.put("java", HeaderStyle.BLOCK_COMMENT)
-//        style.put("kt", HeaderStyle.BLOCK_COMMENT)
-//    }
+    configure<LicenseExtension> {
+        setHeader(rootProject.file("LICENSE"))
+        setIncludes(listOf("**/*.java", "**/*.kt"))
+        style.put("java", HeaderStyle.BLOCK_COMMENT)
+        style.put("kt", HeaderStyle.BLOCK_COMMENT)
+    }
 
     tasks.withType<KotlinCompile> {
         kotlinOptions {
@@ -73,7 +73,7 @@ internal fun Project.loadPlugins() {
     plugins.apply("idea")
     plugins.apply("org.jetbrains.kotlin.jvm")
     plugins.apply("maven-publish")
-//    plugins.apply("org.cadixdev.licenser")
+    plugins.apply("org.cadixdev.licenser")
     plugins.apply("fabric-loom")
     plugins.apply("com.github.johnrengelman.shadow")
     plugins.apply("com.matthewprenger.cursegradle")
