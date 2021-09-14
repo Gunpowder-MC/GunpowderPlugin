@@ -4,7 +4,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.matthewprenger.cursegradle.CurseExtension
 import com.matthewprenger.cursegradle.CurseProject
 import com.matthewprenger.cursegradle.CurseRelation
-import net.fabricmc.loom.LoomGradleExtension
+import net.fabricmc.loom.api.LoomGradleExtensionAPI
 import net.fabricmc.loom.task.RemapJarTask
 import net.fabricmc.loom.task.RemapSourcesJarTask
 import net.fabricmc.loom.util.Constants
@@ -62,7 +62,8 @@ internal fun Project.configureGunpowder() {
         }
     }
 
-    configure<LoomGradleExtension> {
+    configure<LoomGradleExtensionAPI> {
+
     }
 }
 
@@ -77,6 +78,7 @@ internal fun Project.loadPlugins() {
     plugins.apply("fabric-loom")
     plugins.apply("com.github.johnrengelman.shadow")
     plugins.apply("com.matthewprenger.cursegradle")
+    plugins.apply("com.github.ben-manes.versions")
 }
 
 

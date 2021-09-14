@@ -36,6 +36,7 @@ dependencies {
     implementation("net.fabricmc:fabric-loom:${props["fabric_loom"]}")
     implementation("gradle.plugin.com.github.jengelman.gradle.plugins:shadow:${props["shadow"]}")
     implementation("gradle.plugin.com.matthewprenger:CurseGradle:${props["cursegradle"]}")
+    implementation("com.github.ben-manes:gradle-versions-plugin:${props["updater"]}")
 
     /* Depend on the default Gradle API's since we want to build a custom plugin */
     implementation(gradleApi())
