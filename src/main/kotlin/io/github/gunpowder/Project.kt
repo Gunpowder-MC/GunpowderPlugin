@@ -128,7 +128,7 @@ internal fun Project.loadDependencies() {
         add("modImplementation", libs["fabric_loader"]!!)
         add("modImplementation", libs["fabric_api"]!!)
         add("modImplementation", libs["fabric_language_kotlin"]!!)
-        add("modImplementation", libs["permissions"]!!)
+//        add("modImplementation", libs["permissions"]!!)
 
         add("modCompileOnly", libs["exposed_core"]!!)
         add("modImplementation", libs["hermes"]!!)
