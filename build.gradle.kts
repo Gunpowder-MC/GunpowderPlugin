@@ -34,7 +34,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${props["kotlin"]}")
     implementation("gradle.plugin.org.cadixdev.gradle:licenser:${props["licenser"]}")
     implementation("net.fabricmc:fabric-loom:${props["fabric_loom"]}")
-    implementation("gradle.plugin.com.github.jengelman.gradle.plugins:shadow:${props["shadow"]}")
+    implementation("gradle.plugin.com.github.johnrengelman:shadow:${props["shadow"]}")
     implementation("gradle.plugin.com.matthewprenger:CurseGradle:${props["cursegradle"]}")
     implementation("com.github.ben-manes:gradle-versions-plugin:${props["updater"]}")
 
