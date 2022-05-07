@@ -32,8 +32,8 @@ internal fun Project.configureGunpowder() {
     group = "io.github.gunpowder"
 
     configure<JavaPluginConvention> {
-        sourceCompatibility = JavaVersion.VERSION_16
-        targetCompatibility = JavaVersion.VERSION_16
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     configure<LicenseExtension> {
@@ -45,7 +45,7 @@ internal fun Project.configureGunpowder() {
 
     tasks.withType<KotlinCompile> {
         kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_16.toString()
+            jvmTarget = JavaVersion.VERSION_17.toString()
             freeCompilerArgs = freeCompilerArgs.toMutableList().also { it.add("-Xjvm-default=all-compatibility") }
         }
     }
@@ -133,8 +133,10 @@ internal fun Project.loadDependencies() {
         add("modCompileOnly", libs["exposed_core"]!!)
         add("modImplementation", libs["hermes"]!!)
 
-        add("modCompileOnly", "io.github.gunpowder:gunpowder-api:${project.properties["gunpowder_version"]}+${project.properties["minecraft"]}")
-        add("modRuntime", "io.github.gunpowder:gunpowder-base:${project.properties["gunpowder_version"]}+${project.properties["minecraft"]}")
+        add("modCompileOnlyApi", "io.github.gunpowder:gunpowder-api:${project.properties["gunpowder_version"]}+${project.properties["minecraft"]}") {
+            exclude("com.google.guava")
+        }
+        add("modRuntimeOnly", "io.github.gunpowder:gunpowder-base:${project.properties["gunpowder_version"]}+${project.properties["minecraft"]}")
     }
 
 }
